@@ -1,0 +1,7 @@
+**/*.pyc
+.venv/
+.azure
+__pycache__/
+.coverage
+.DS_Store
+.github/copilot-instructions.md
