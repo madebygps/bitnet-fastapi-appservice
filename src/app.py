@@ -16,8 +16,9 @@ class ModelResponse(BaseModel):
 
 BASE_DIR = Path(__file__).parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
-
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
+
+client = openai.OpenAI(base_url=os.getenv('ENDPOINT'), api_key="nokeyneeded")
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
@@ -25,10 +26,9 @@ async def index(request: Request):
 
 
 @app.post("/chat")
-def chat(modelResponse: ModelResponse):
+async def chat(modelResponse: ModelResponse):
     user_message = modelResponse.message
     print(user_message)
-    client = openai.OpenAI(base_url=os.getenv('ENDPOINT'), api_key="nokeyneeded")
     response = client.chat.completions.create(
         model=os.getenv('MODEL'),
         temperature=0.7,
@@ -46,7 +46,7 @@ def chat(modelResponse: ModelResponse):
         stream=True
     )
     
-    def stream_response():
+    async def stream_response():
         for event in response:
             if event.choices:
                 content = event.choices[0].delta.content
