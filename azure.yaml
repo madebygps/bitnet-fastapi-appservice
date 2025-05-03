@@ -1,24 +1,12 @@
-name: simple-fastapi-container-appservice
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: simple-fastapi-webapp
 metadata:
-  template: simple-fastapi-container-appservice@0.0.1-beta
+  template: simple-fastapi-webapp@0.0.1-beta
+infra:
+    provider: "bicep"
 services:
-  api:
-    project: ./src
+  web:
+    project: src
     language: py
     host: appservice
-    hooks:
-      predeploy:
-        windows:
-          shell: pwsh
-          run: |
-            az acr login -n $env:AZURE_CONTAINER_REGISTRY_NAME
-            docker build --platform linux/amd64 -t fastapi:latest .
-            docker tag fastapi:latest $env:AZURE_CONTAINER_REGISTRY_ENDPOINT/fastapi:latest
-            docker push $env:AZURE_CONTAINER_REGISTRY_ENDPOINT/fastapi:latest
-        posix:
-          shell: sh
-          run: |
-            az acr login -n ${AZURE_CONTAINER_REGISTRY_NAME}
-            docker build --platform linux/amd64 -t fastapi:latest .
-            docker tag fastapi:latest ${AZURE_CONTAINER_REGISTRY_ENDPOINT}/fastapi:latest
-            docker push ${AZURE_CONTAINER_REGISTRY_ENDPOINT}/fastapi:latest

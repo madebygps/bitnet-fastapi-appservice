@@ -2,7 +2,7 @@ targetScope = 'subscription'
 
 @minLength(1)
 @maxLength(64)
-@description('Name which is used to generate a short unique hash for each resource')
+@description('Name of the the environment which is used to generate a short unique hash used in all resources.')
 param name string
 
 @minLength(1)
@@ -10,30 +10,22 @@ param name string
 param location string
 
 var resourceToken = toLower(uniqueString(subscription().id, name, location))
-var prefix = '${name}-${resourceToken}'
 var tags = { 'azd-env-name': name }
 
-resource rg 'Microsoft.Resources/resourceGroups@2022-09-01' = {
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: '${name}-rg'
   location: location
   tags: tags
 }
 
 module resources 'resources.bicep' = {
-  scope: rg
   name: 'resources'
+  scope: resourceGroup
   params: {
     location: location
+    resourceToken: resourceToken
     tags: tags
-    containerRegistryName: '${replace(prefix, '-', '')}registry'
-    appServiceName: replace('${take(prefix,19)}-app', '--', '-')
-    appServicePlanName: replace('${take(prefix,19)}-plan', '--', '-')
-    applicationInsightsName: replace('${take(prefix,19)}-ai', '--', '-')
-    logAnalyticsName: replace('${take(prefix,19)}-la', '--', '-')
-
   }
 }
 
-output AZURE_CONTAINER_REGISTRY_NAME string = resources.outputs.acrName
-output AZURE_CONTAINER_REGISTRY_ENDPOINT string = resources.outputs.acrLoginServer
-output API_URI string = resources.outputs.apiUri
+output AZURE_LOCATION string = location

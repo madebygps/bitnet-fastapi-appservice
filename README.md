@@ -1,70 +1,58 @@
-# Simple FastAPI Container on App Service AZD Template
+---
+page_type: sample
+languages:
+- azdeveloper
+- python
+- bicep
+- html
+products:
+- azure
+- azure-app-service
+urlFragment: azure-simple-fastapi-appservice
+name: Deploy a minimal FastAPI Application on Azure App Service (Python)
+description: A tiny, no-frills, template to deploy Python's FastAPI web framework to Azure App Service in the free tier.
+---
+<!-- YAML front-matter schema: https://review.learn.microsoft.com/en-us/help/contribute/samples/process/onboarding?branch=main#supported-metadata-fields-for-readmemd -->
 
-A containerized FastAPI application template ready for Azure App Service deployment with container support.
+# Simple FastAPI AZD Template
 
-## Azure Resources
-
-This template provisions the following Azure resources:
-
-- **Azure Container Registry**: Stores the Docker container images
-- **Azure App Service Plan**: Hosts the web application (F1 free tier)
-- **Azure App Service**: Runs the containerized FastAPI application
-- **Application Insights**: Provides monitoring and telemetry
-- **Log Analytics Workspace**: Stores application logs and metrics
+The most basic FastAPI "hello world" application as an AZD template ready for Azure App Service
 
 ![system diagram](diagram.png)
 
-## Deployment Steps
+## Usage
 
-### Prerequisites
-
-1. [Create a free Azure account](https://azure.microsoft.com/free/) if you don't have one
-2. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) on your local machine
-3. Install the [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
-4. Install the [Azure Developer CLI](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd) (azd)
-
-### Deploy the Application
-
-1. Clone and initialize the template:
-
-    ```bash
-    azd init -t madebygps/azd-simple-fastapi-container-appservice
-    ```
-
-2. Sign in to Azure:
-
-    ```bash
-    az login
-    ```
-
-3. Authenticate with Azure Developer CLI:
-
-    ```bash
-    azd auth login
-    ```
-
-4. Provision and deploy the resources:
-
-    ```bash
-    azd up
-    ```
-
-5. Once deployment completes, you'll receive an endpoint URL.
-
-### Making Changes
-
-After modifying your application code, redeploy using:
+1. Install AZD and run the following command to initialize the project.
 
 ```bash
-azd deploy
+azd init --template Azure-Samples/azd-simple-fastapi-appservice
 ```
 
-### Troubleshooting
+This command will clone the code to your current folder and prompt you for the following information:
 
-- If deployment fails, try a different region as resource availability may vary
+- `Environment Name`: This will be used as a prefix for the resource group that will be created to hold all Azure resources. This name should be unique within your Azure subscription.
+
+2. Login to your Azure account.
+```bash
+azd auth login
+```
+
+3. Run the following command to build a deployable copy of your application, provision the template's infrastructure to Azure and also deploy the applciation code to those newly provisioned resources.
+
+```bash
+azd up
+```
+
+This command will prompt you for the following information:
+- `Azure Location`: The Azure location where your resources will be deployed.
+- `Azure Subscription`: The Azure Subscription where your resources will be deployed.
+
+> NOTE: This may take a while to complete as it executes three commands: `azd package` (builds a deployable copy of your application), `azd provision` (provisions Azure resources), and `azd deploy` (deploys application code). You will see a progress indicator as it packages, provisions and deploys your application.
+
+4. Then make changes to app.py and run `azd deploy` again to update your changes.
 
 ## Notes
 
-This template uses the F1 (free) SKU for App Service, which has limited CPU and RAM resources. For production workloads, consider upgrading to a paid SKU by modifying the App Service Plan configuration in `infra/resources.bicep`.
+This uses the F1 (free) SKU for app service, which has limited CPU and RAM resources.
 
-See the [pricing calculator](https://azure.microsoft.com/en-au/pricing/calculator/) for details on paid SKUs.
+See the [pricing calculator](https://azure.microsoft.com/en-au/pricing/calculator/) for details on paid SKUs replace the SKU option with a suitable choice.

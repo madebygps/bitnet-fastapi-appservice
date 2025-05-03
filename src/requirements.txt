@@ -1,2 +1,6 @@
-fastapi
-uvicorn
+gunicorn>=22.0, <23.0
+uvicorn>=0.23, <0.24
+fastapi>=0.111, <0.112
+openai
+python-dotenv
+jinja2
