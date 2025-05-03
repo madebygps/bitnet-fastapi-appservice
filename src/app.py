@@ -31,7 +31,7 @@ async def chat(modelResponse: ModelResponse):
     print(user_message)
     response = client.chat.completions.create(
         model=os.getenv('MODEL'),
-        temperature=0.7,
+        temperature=0.3,
         n=1,
         messages=[
             {
