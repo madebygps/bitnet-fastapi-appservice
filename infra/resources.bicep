@@ -24,7 +24,7 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
     siteConfig: {
       linuxFxVersion: 'PYTHON|3.11'
       ftpsState: 'Disabled'
-      appCommandLine: 'python3 -m uvicorn app:app --host 0.0.0.0 --port 8000 --workers 2 --timeout-keep-alive 120'
+      appCommandLine: 'python3 -m uvicorn app:app --host 0.0.0.0 --port 8000 --workers 1 --timeout-keep-alive 120'
     }
     httpsOnly: true
   }
