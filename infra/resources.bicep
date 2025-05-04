@@ -2,6 +2,18 @@ param location string
 param resourceToken string
 param tags object
 
+resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
+  name: 'app-${resourceToken}'
+  location: location
+  sku: {
+    name: 'P1V3'  
+  }
+  kind: 'linux'
+  properties: {
+    reserved: true
+  }
+}
+
 resource web 'Microsoft.Web/sites@2022-03-01' = {
   name: 'web-${resourceToken}'
   location: location
@@ -12,7 +24,7 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
     siteConfig: {
       linuxFxVersion: 'PYTHON|3.11'
       ftpsState: 'Disabled'
-      appCommandLine: 'python3 -m gunicorn app:app -k uvicorn.workers.UvicornWorker'
+      appCommandLine: 'python3 -m uvicorn app:app --host 0.0.0.0 --port 8000'
     }
     httpsOnly: true
   }
@@ -24,6 +36,9 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
     name: 'appsettings'
     properties: {
       SCM_DO_BUILD_DURING_DEPLOYMENT: 'true'
+      SIDECAR_PORT: '11434'
+      ENDPOINT: 'http://localhost:11434/v1'
+      MODEL: 'bitnet-b1.58-2b-4t-gguf'
     }
   }
 
@@ -51,15 +66,16 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
     }
   }
 }
-resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
-  name: 'app-${resourceToken}'
-  location: location
-  sku: {
-    name: 'B1'
-  }
-  kind: 'linux'
+
+resource bitnetSidecar 'Microsoft.Web/sites/sitecontainers@2024-04-01' = {
+  parent: web
+  name: 'bitnet-sidecar'
   properties: {
-    reserved: true
+    image: 'mcr.microsoft.com/appsvc/docs/sidecars/sample-experiment:bitnet-b1.58-2b-4t-gguf'
+    isMain: false
+    authType: 'Anonymous'
+    targetPort: '11434'
   }
 }
+
 output WEB_URI string = 'https://${web.properties.defaultHostName}'
