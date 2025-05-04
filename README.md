@@ -1,40 +1,131 @@
-# FastAPI BitNet App Service Sidecar
+# BitNet FastAPI Chat App
 
-A FastAPI template with [BitNet](https://huggingface.co/microsoft/bitnet-b1.58-2B-4T-gguf) (Microsoft's lightweight 1-bit transformer model) as a sidecar container on Azure App Service.
+A web-based chat application that leverages BitNet b1.58-2B-4T for inference, deployed on Azure App Service with a sidecar container architecture.
+
+## Overview
+
+This application provides a simple web interface to interact with BitNet, a 1-bit large language model designed for efficient inference. The app uses:
+
+- **FastAPI**: High-performance web framework for building APIs
+- **BitNet b1.58-2B-4T**: Official 2B parameter 1-bit LLM model
+- **Azure App Service**: PaaS hosting with sidecar container support
+- **Bicep & Azure Developer CLI (azd)**: Infrastructure as Code and deployment pipeline
+
+## Architecture
+
+The application uses a sidecar container pattern on Azure App Service:
+
+- **Main Container**: Runs the FastAPI application
+- **BitNet Sidecar**: Runs the BitNet model inference service
+- **Communication**: Main app connects to the sidecar via localhost
 
 ## Prerequisites
 
-- [Azure Developer CLI (AZD)](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)
-- [Azure subscription](https://azure.microsoft.com/free/)
-- [Docker](https://www.docker.com/products/docker-desktop/)
+- [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
+- [Azure Developer CLI (azd)](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd)
+- [Python 3.11+](https://www.python.org/downloads/)
 
-## Usage
+## Local Development
 
-1. Install AZD and run the following command to initialize the project.
+To run the application with BitNet inference locally, you'll need to follow the setup instructions from the [BitNet repository](https://github.com/microsoft/BitNet):
 
-    ```bash
-    azd init
-    ```
+1. Clone the BitNet repository:
 
-1. Login to your Azure account.
+   ```bash
+   git clone --recursive https://github.com/microsoft/BitNet.git
+   cd BitNet
+   ```
 
-    ```bash
-    azd auth login
-    ```
+2. Set up the environment (recommended using conda):
 
-1. Run the following command to build a deployable copy of your application, provision the template's infrastructure to Azure and also deploy the applciation code to those newly provisioned resources.
+   ```bash
+   conda create -n bitnet-cpp python=3.9
+   conda activate bitnet-cpp
+   pip install -r requirements.txt
+   ```
 
-    ```bash
-    azd up
-    ```
+3. Download and prepare the model:
 
-This command will prompt you for the following information:
+   ```bash
+   huggingface-cli download microsoft/BitNet-b1.58-2B-4T-gguf --local-dir models/BitNet-b1.58-2B-4T
+   python setup_env.py -md models/BitNet-b1.58-2B-4T -q i2_s
+   ```
 
-- `Azure Location`: The Azure location where your resources will be deployed.
-- `Azure Subscription`: The Azure Subscription where your resources will be deployed.
+4. Run the BitNet server locally (this will start an API server on port 11434)
 
-> NOTE: This may take a while to complete as it executes three commands: `azd package` (builds a deployable copy of your application), `azd provision` (provisions Azure resources), and `azd deploy` (deploys application code). You will see a progress indicator as it packages, provisions and deploys your application.
+5. In a separate terminal, clone and run the FastAPI application:
 
+   ```bash
+   git clone https://github.com/yourusername/bitnet-fastapi-chat.git
+   cd bitnet-fastapi-chat
+   
+   # Set up virtual environment
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   
+   # Install dependencies
+   pip install -r requirements.txt
+   
+   # Run the app
+   ENDPOINT=http://localhost:11434/v1 uvicorn app:app --reload
+   ```
+
+## Deployment to Azure
+
+1. Log in to Azure:
+
+   ```bash
+   az login
+   ```
+
+2. Initialize Azure Developer CLI:
+
+   ```bash
+   azd init
+   ```
+
+3. Deploy the application:
+
+   ```bash
+   azd up
+   ```
+
+## Application Configuration
+
+Key application settings used by the app:
+
+- `ENDPOINT`: URL for BitNet inference API (http://localhost:11434/v1)
+- `MODEL`: Name of BitNet model (bitnet-b1.58-2b-4t-gguf)
+- `SIDECAR_PORT`: Port for BitNet sidecar (11434)
+- `WEBSITES_ENABLE_APP_SERVICE_STORAGE`: Enables persistent storage (set to 'true')
+- `WEBSITE_ENABLE_SIDECAR`: Enables sidecar containers (set to 'true')
+
+## BitNet Model Information
+
+This application uses the BitNet b1.58-2B-4T model, which is a 1-bit large language model with 2.4B parameters. Key characteristics:
+
+- Model size: 1.10 GiB (3.91 Bytes Per Weight)
+- Fast CPU inference (optimized with bitnet.cpp)
+- Energy-efficient operation (up to 82% reduction compared to full-precision models)
+- Suitable for edge and resource-constrained environments
+
+## Performance Considerations
+
+The application is designed to work with:
+
+- Minimum: Basic B3 tier (4 vCPUs, 7GB RAM)
+- Recommended: Premium v3 P1v3 tier or higher (2+ vCPUs, 8GB+ RAM)
+- Production: Premium v3 P2v3 tier (4 vCPUs, 16GB RAM)
+
+Actual performance will depend on workload:
+
+- Response generation: 5-10 tokens per second on average
+- Memory usage: ~1.5GB for model + application overhead
+- Concurrent users: P1v3 can handle ~5-10 simultaneous users, P2v3 can handle ~10-20
+
+## License
+
+[MIT License](LICENSE)
 
 ## Notes
 
