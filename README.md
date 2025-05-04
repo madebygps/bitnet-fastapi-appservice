@@ -87,19 +87,6 @@ This application uses the BitNet b1.58-2B-4T model, which is a 1-bit large langu
 - Energy-efficient operation (up to 82% reduction compared to full-precision models)
 - Suitable for edge and resource-constrained environments
 
-## Performance Considerations
-
-The application is designed to work with:
-
-- Minimum: Basic B3 tier (4 vCPUs, 7GB RAM)
-- Recommended: Premium v3 P1v3 tier or higher (2+ vCPUs, 8GB+ RAM)
-- Production: Premium v3 P2v3 tier (4 vCPUs, 16GB RAM)
-
-Actual performance will depend on workload:
-
-- Response generation: 5-10 tokens per second on average
-- Memory usage: ~1.5GB for model + application overhead
-- Concurrent users: P1v3 can handle ~5-10 simultaneous users, P2v3 can handle ~10-20
 
 ## License
 
