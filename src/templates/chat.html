@@ -25,14 +25,26 @@
             const message = messageInput.value;
             if (!message.trim()) return;
 
+            // Add user's message to chat
             chatBox.innerHTML += `\n<b>You:</b> ${message}\n<b>Assistant:</b> `;
             messageInput.value = "";
+            
+            // Add a loading indicator with a unique ID
+            const loadingIndicatorId = `loading-${Date.now()}`;
+            chatBox.innerHTML += `<span id="${loadingIndicatorId}">generating answer</span>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
 
             const response = await fetch("/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message })
             });
+
+            // Remove the loading indicator when response starts
+            const loadingIndicator = document.getElementById(loadingIndicatorId);
+            if (loadingIndicator) {
+                loadingIndicator.remove();
+            }
 
             const reader = response.body.getReader();
             const decoder = new TextDecoder();

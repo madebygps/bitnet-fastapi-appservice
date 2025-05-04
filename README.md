@@ -27,33 +27,11 @@ The application uses a sidecar container pattern on Azure App Service:
 
 ## Local Development
 
-To run the application with BitNet inference locally, you'll need to follow the setup instructions from the [BitNet repository](https://github.com/microsoft/BitNet):
+To run the application with BitNet inference locally, you'll need to follow the setup instructions from the [BitNet repository](https://github.com/microsoft/BitNet) and make sure it is running on the port your api is working with.
 
-1. Clone the BitNet repository:
+Then you can run this API.
 
-   ```bash
-   git clone --recursive https://github.com/microsoft/BitNet.git
-   cd BitNet
-   ```
-
-2. Set up the environment (recommended using conda):
-
-   ```bash
-   conda create -n bitnet-cpp python=3.9
-   conda activate bitnet-cpp
-   pip install -r requirements.txt
-   ```
-
-3. Download and prepare the model:
-
-   ```bash
-   huggingface-cli download microsoft/BitNet-b1.58-2B-4T-gguf --local-dir models/BitNet-b1.58-2B-4T
-   python setup_env.py -md models/BitNet-b1.58-2B-4T -q i2_s
-   ```
-
-4. Run the BitNet server locally (this will start an API server on port 11434)
-
-5. In a separate terminal, clone and run the FastAPI application:
+1. clone and run the FastAPI application:
 
    ```bash
    git clone https://github.com/yourusername/bitnet-fastapi-chat.git
